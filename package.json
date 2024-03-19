@@ -1,0 +1,20 @@
+{
+  "name": "note-app",
+  "version": "1.0.1",
+  "description": "proba",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "note",
+    "javascript"
+  ],
+  "author": "M Zev",
+  "license": "ISC",
+  "dependencies": {
+    "@types/yargs": "^17.0.32",
+    "chalk": "^5.3.0",
+    "yargs": "^17.7.2"
+  }
+}
