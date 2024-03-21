@@ -1,45 +1,62 @@
-const yargs = require("yargs");
-const pkg = require("./package.json");
-const { addNote, printNotes, deleteNote } = require("./notes.controller");
+const express = require("express");
+const chalk = require("chalk");
+const {
+  addNote,
+  getNotes,
+  removeNote,
+  editNote,
+} = require("./notes.controller.js");
+const path = require("path");
 
-yargs.version(pkg.version);
+const port = 3001;
+const app = express();
 
-yargs.command({
-  command: "add",
-  describe: "Add a new note to the list",
-  builder: {
-    title: {
-      describe: "Note title",
-      demandOption: true,
-      type: "string",
-    },
-  },
-  handler({ title }) {
-    addNote(title);
-  },
+app.set("view engine", "ejs");
+app.set("views", "pages");
+
+app.use(express.json());
+app.use(express.static(path.resolve(__dirname, "public")));
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
+
+app.get("/", async (req, res) => {
+  res.render("index", {
+    title: "Express App",
+    notes: await getNotes(),
+    created: false,
+  });
 });
 
-yargs.command({
-  command: "list",
-  describe: "Print all notes",
-  handler() {
-    printNotes();
-  },
+app.post("/", async (req, res) => {
+  await addNote(req.body.title);
+  res.render("index", {
+    title: "Express App",
+    notes: await getNotes(),
+    created: true,
+  });
 });
 
-yargs.command({
-  command: "delete",
-  describe: "Delete a note from the list",
-  builder: {
-    id: {
-      describe: "ID of the note to delete",
-      demandOption: true,
-      type: "string",
-    },
-  },
-  handler({ id }) {
-    deleteNote(id);
-  },
+app.delete("/:id", async (req, res) => {
+  await removeNote(req.params.id);
+  res.render("index", {
+    title: "Express App",
+    notes: await getNotes(),
+    created: false,
+  });
 });
 
-yargs.parse();
+app.put("/:id", async (req, res) => {
+  await editNote(req.params.id, req.body.newName);
+  res.render("index", {
+    title: "Express App",
+    notes: await getNotes(),
+    created: false,
+  });
+});
+
+app.listen(port, () => {
+  console.log(chalk.green(`Server has been started on port ${port}...`));
+});
